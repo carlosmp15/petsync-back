@@ -1,0 +1,26 @@
+{
+  "name": "rest-api-ts-server",
+  "version": "1.0.0",
+  "description": "REST API's con Express y Typescript PetSync",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon --exec ts-node src/index.ts"
+  },
+  "author": "Carlos Murillo Perez",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "colors": "^1.4.0",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "express-validator": "^7.2.1",
+    "mysql2": "^3.14.0",
+    "sequelize-typescript": "^2.1.6"
+  }
+}

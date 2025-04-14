@@ -111,9 +111,8 @@ export const deletePet = async (req: Request, res: Response): Promise<void> => {
     const pet = await Pet.findByPk(id)
 
     if(!pet) {
-        res.status(400).json({
-            error: 'Mascota no encontrada'
-        })
+        res.status(400).json({error: 'Mascota no encontrada'})
+        return
     }
 
     await pet.destroy()

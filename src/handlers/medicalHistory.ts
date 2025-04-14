@@ -32,7 +32,7 @@ export const getAllMedicalHistoryByPetId = async (req: Request, res: Response): 
         }
 
         const medicalHistoriesData = medicalHistories.map(medicalHistory => {
-            const { Pet, createdAt, updatedAt, ...rest } = medicalHistory.toJSON()
+            const { pet, createdAt, updatedAt, ...rest } = medicalHistory.toJSON()
             return rest
         })
 
@@ -79,7 +79,7 @@ export const getMedicalHistoryFilteredByDates = async (req: Request, res: Respon
         }
 
         const medicalHistoriesData = medicalHistories.map(medicalHistory => {
-            const { Pet, createdAt, updatedAt, ...rest } = medicalHistory.toJSON()
+            const { pet, createdAt, updatedAt, ...rest } = medicalHistory.toJSON()
             return rest
         })
 

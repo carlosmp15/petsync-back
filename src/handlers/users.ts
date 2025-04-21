@@ -114,7 +114,13 @@ export const authUser = async (req: Request, res: Response): Promise<void> => {
         delete userData.createdAt
         delete userData.updatedAt
 
-        res.json({authenticated: true, results: userData})
+        res.json({
+            authenticated: true,
+            results: {
+                message: "El usuario ha sido autenticado exitosamente.",
+                results: userData
+            }
+        });          
 
     } catch (error) {
         res.status(500).json({ error: 'Error interno del servidor' })

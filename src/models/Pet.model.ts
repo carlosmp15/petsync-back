@@ -20,7 +20,9 @@ class Pet extends Model {
     })
     declare user_id: number
 
-    @BelongsTo(() => User)
+    @BelongsTo(() => User, {
+        onDelete: 'CASCADE'
+    })
     declare user: User; // relacción acceder a User
 
     @Column({
@@ -34,12 +36,6 @@ class Pet extends Model {
          allowNull: false
     })
     declare breed: string
-    
-    @Column({
-        type: DataType.STRING(),
-         allowNull: false
-    })
-    declare species: string
 
     @Column({
         type: DataType.STRING(),

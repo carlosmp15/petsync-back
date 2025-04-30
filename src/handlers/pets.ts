@@ -32,6 +32,23 @@ export const getAllPetsByUserId = async (req: Request, res: Response): Promise<v
     }
 }
 
+/**
+ * Función que obtiene todos los nombres y los ids de las mascotas de un usuario
+ */
+export const getAllPetsNameByUserId = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { id } = req.params
+
+        const pets = await Pet.findAll({
+            where: { user_id: id },
+            attributes: ['id', 'name'],
+        })
+
+        res.json({ results: pets })
+    } catch (error) {
+        res.status(500).json({ error: 'Error interno del servidor' })
+    }
+}
 
 /**
  * Función que obtiene los datos personales de una mascota por id
@@ -69,7 +86,10 @@ export const createNewPet = async (req: Request, res: Response): Promise<void> =
         delete petData.createdAt
         delete petData.updatedAt
 
-        res.status(201).json({data: petData})
+        res.json({
+            data: petData,
+            message: "Mascota creada exitosamente"
+        })          
     } catch (error) {
         res.status(500).json({ error: 'Error interno del servidor' })
         return

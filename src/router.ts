@@ -1,8 +1,8 @@
 import { Router } from "express"
-import { authUser, createNewUser, getUserDataById, updateUserData } from "./handlers/users"
+import { authUser, createNewUser, deleteUser, getUserDataById, updateUserData } from "./handlers/users"
 import { handleInputErrors } from "./middleware"
 import { body, param, query } from "express-validator"
-import { createNewPet, deletePet, getAllPetsByUserId, getPetDataById, updatePetData } from "./handlers/pets"
+import { createNewPet, deletePet, getAllPetsByUserId, getAllPetsNameByUserId, getPetDataById, updatePetData } from "./handlers/pets"
 import { createNewMedicalHistory, deleteMedicalHistory, getAllMedicalHistoryByPetId, getMedicalHistoryFilteredByDates, updateMedicalHistory } from "./handlers/medicalHistory"
 import { createNewFeeding, deleteFeeding, getAllFeedingsByPetId, getFeedingsFilteredByDates, updateFeeding } from "./handlers/feedings"
 import { createNewDailyActivity, deleteDailyActivity, getAllDailyActivitiesByPetId, getDailyActivitiesFilteredByDates, updateDailyActivity } from "./handlers/dailyActivities"
@@ -70,10 +70,6 @@ const router = Router()
  *           type: string
  *           description: The Pet breed
  *           example: "Golden Retriever"
- *         species:
- *           type: string
- *           description: The Pet species
- *           example: "Dog"
  *         gender:
  *           type: string
  *           description: The Pet gender
@@ -260,6 +256,14 @@ router.get('/pet/user/:id',
         .isInt({ gt: 0 }).withMessage('El id del usuario debe ser un número entero positivo'),
     handleInputErrors,   
     getAllPetsByUserId
+)
+
+router.get('/pet/name/user/:id', 
+    param('id')
+        .notEmpty().withMessage('El id del usuario es obligatorio')
+        .isInt({ gt: 0 }).withMessage('El id del usuario debe ser un número entero positivo'),
+    handleInputErrors,   
+    getAllPetsNameByUserId
 )
 
 /**
@@ -634,9 +638,7 @@ router.post('/user',
     body('email').isEmail().withMessage('Debe ser un email válido'),
     body('phone').notEmpty().withMessage('El teléfono es obligatorio'),
     body('birthday').isDate().withMessage('Debe ser una fecha válida'),
-    body('password')
-        .isLength({ min: 6 })
-        .withMessage('La contraseña debe tener al menos 6 caracteres'),
+    body('password').notEmpty().withMessage('La contraseña es obligatoria'),
     handleInputErrors,
     createNewUser
 )
@@ -707,18 +709,10 @@ router.post('/user/auth',
  *                 type: string
  *                 description: The name of the pet
  *                 example: Rex
- *               surname:
- *                 type: string
- *                 description: The surname of the pet (optional, if applicable)
- *                 example: Doberman
  *               breed:
  *                 type: string
  *                 description: The breed of the pet
  *                 example: Doberman Pinscher
- *               species:
- *                 type: string
- *                 description: The species of the pet
- *                 example: Dog
  *               gender:
  *                 type: string
  *                 description: The gender of the pet
@@ -754,9 +748,7 @@ router.post('/user/auth',
 router.post('/pet',
     body('user_id').notEmpty().withMessage('El ID de usuario es obligatorio'),
     body('name').notEmpty().withMessage('El nombre es obligatorio'),
-    body('surname').notEmpty().withMessage('El apellido es obligatorio'),
     body('breed').notEmpty().withMessage('La raza es obligatoria'),
-    body('species').notEmpty().withMessage('La especie es obligatoria'),
     body('gender').notEmpty().withMessage('El género es obligatorio'),
     body('weight').notEmpty().withMessage('El peso es obligatorio'),
     body('birthday')
@@ -1065,18 +1057,10 @@ router.put('/user/:id',
  *                 type: string
  *                 description: The name of the pet
  *                 example: Rex
- *               surname:
- *                 type: string
- *                 description: The surname of the pet (optional, if applicable)
- *                 example: Doberman
  *               breed:
  *                 type: string
  *                 description: The breed of the pet
  *                 example: Doberman Pinscher
- *               species:
- *                 type: string
- *                 description: The species of the pet
- *                 example: Dog
  *               gender:
  *                 type: string
  *                 description: The gender of the pet
@@ -1112,9 +1096,7 @@ router.put('/user/:id',
 router.put('/pet/:id',
     body('user_id').notEmpty().withMessage('El ID de usuario es obligatorio'),
     body('name').notEmpty().withMessage('El nombre es obligatorio'),
-    body('surname').notEmpty().withMessage('El apellido es obligatorio'),
     body('breed').notEmpty().withMessage('La raza es obligatoria'),
-    body('species').notEmpty().withMessage('La especie es obligatoria'),
     body('gender').notEmpty().withMessage('El género es obligatorio'),
     body('weight').notEmpty().withMessage('El peso es obligatorio'),
     body('birthday')
@@ -1339,6 +1321,39 @@ router.put('/daily_activity/:id',
         .notEmpty().withMessage('La fecha de actividad diaria es obligatoria')
         .isDate().withMessage('La fecha del historial alimentario debe ser válida'),
     updateDailyActivity
+)
+
+/**
+ * @swagger
+ * /api/v1/user/{id}:
+ *   delete:
+ *     summary: Delete a user by id
+ *     description: Deletes a user by its id
+ *     tags:
+ *       - User
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the user to delete
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *       400:
+ *         description: Bad Request - Invalid ID 
+ *       404:
+ *         description: Not found
+ *       500:
+ *         description: Internal Server Error
+ */
+router.delete('/user/:id', 
+    param('id')
+        .notEmpty().withMessage('El id de usuario es obligatorio')
+        .isInt({ gt: 0 }).withMessage('El id de usuario debe ser un número entero positivo'),
+    handleInputErrors,
+    deleteUser
 )
 
 /**

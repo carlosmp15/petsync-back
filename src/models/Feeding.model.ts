@@ -20,7 +20,9 @@ class Feeding extends Model {
         })
         declare pet_id: number
 
-    @BelongsTo(() => Pet)
+        @BelongsTo(() => Pet, {
+            onDelete: 'CASCADE'
+        })
     declare pet: Pet; // relacción acceder a Pet
 
     @Column({

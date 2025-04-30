@@ -60,32 +60,36 @@ export const createNewUser = async (req: Request, res: Response): Promise<void> 
  */
 export const updateUserData = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { id } = req.params
-        const user = await User.findByPk(id)
-
-        if (!user) {
-            res.status(404).json({error: 'Usuario no encontrado'})
-            return
-        }
-
-        if (req.body.password) { // si hay contraseña
-            const salt = await bcrypt.genSalt(10)
-            const hashedPassword = await bcrypt.hash(req.body.password, salt)
-            req.body.password = hashedPassword  // actualiza contraseña hasheada 
-        }
-        await user.update(req.body)
-
-        const userData = user.toJSON()
-        delete userData.password
-        delete userData.createdAt
-        delete userData.updatedAt
-
-        res.json({data: userData})
-    } catch (error) {
-        res.status(500).json({ error: 'Error interno del servidor' })
+      const { id } = req.params
+      const user = await User.findByPk(id)
+  
+      if (!user) {
+        res.status(404).json({ error: 'Usuario no encontrado' })
         return
+      }
+  
+      const { password, ...otherFields } = req.body
+  
+      // Solo si la contraseña no está vacía ni compuesta solo por espacios
+      if (typeof password === 'string' && password.trim() !== '') {
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(password, salt)
+        otherFields.password = hashedPassword // agregar la nueva contraseña al objeto
+      }
+  
+      await user.update(otherFields)
+  
+      const userData = user.toJSON()
+      delete userData.password
+      delete userData.createdAt
+      delete userData.updatedAt
+  
+      res.json({ data: userData })
+    } catch (error) {
+      res.status(500).json({ error: 'Error interno del servidor' });
     }
-}
+  }
+  
 
 
 /**
@@ -126,6 +130,20 @@ export const authUser = async (req: Request, res: Response): Promise<void> => {
         res.status(500).json({ error: 'Error interno del servidor' })
         return
     }
+}
+
+export const deleteUser = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params
+    const product = await User.findByPk(id)
+
+    if(!product) {
+        res.status(400).json({
+            error: 'Usuario no encontrado'
+        })
+    }
+
+    await product.destroy()
+    res.json({data: 'Usuario eliminado'})  
 }
 
 

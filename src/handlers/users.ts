@@ -1,6 +1,8 @@
 import { Request, Response } from "express"
 import bcrypt from "bcrypt"
 import User from "../models/User.model"
+import { generateResetToken, verifyResetToken } from "../utils/jwt"
+import { sendResetEmail } from "../utils/mailer"
 
 /**
  * Función que obtiene los datos personales del usuario por id
@@ -145,5 +147,50 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
     await product.destroy()
     res.json({data: 'Usuario eliminado'})  
 }
+
+// Funcion que envia un correo de recuperacion de contraseña	
+export const forgotPassword = async (req: Request, res: Response) :  Promise<void> => {
+  const { email } = req.body
+  const user = await User.findOne({ where: { email } })
+
+  if (!user) {
+    res.status(404).json({ message: 'Correo no registrado' })
+  }
+
+  const token = generateResetToken(user.id)
+  const resetUrl = `http://localhost:5173/account/change-password?token=${token}`
+
+  try {
+    await sendResetEmail(email, resetUrl)
+    res.json({ message: 'Correo de recuperación enviado' })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: 'Error enviando el correo' })
+  }
+}
+
+// Funcion que restablece la contraseña
+export const resetPassword = async (req: Request, res: Response) : Promise<void> => {
+  const { token, newPassword } = req.body
+
+  try {
+    const payload = verifyResetToken(token)
+    const user = await User.findByPk(payload.id)
+
+    if (!user) {
+      res.status(404).json({ message: 'Usuario no encontrado' })
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+    user.password = hashedPassword
+    await user.save()
+
+    res.json({ message: 'Contraseña actualizada correctamente' })
+  } catch (err) {
+    res.status(400).json({ message: 'Token inválido o expirado' })
+  }
+}
+
+
 
 

@@ -5,6 +5,7 @@ import swaggerSpec, { swaggerUiOptions } from "./config/swagger"
 import router from "./router"
 import db from "./config/db"
 import cors, { CorsOptions } from 'cors'
+import { verifySMTP } from "./utils/mailer"
 
 
 // Conectar a base de datos
@@ -24,16 +25,26 @@ connectDB()
 // Instancia de express
 const server = express()
 
-// Permitir conexiones
+verifySMTP()
+
+// Leer las URLs permitidas desde las variables de entorno
+const whiteList = [
+    process.env.FRONTEND_URL,
+    process.env.BACK_DOC_URL,
+]
+
 const corsOptions: CorsOptions = {
     origin: function(origin, callback) {
-        if(origin === process.env.FRONTEND_URL) {
-            callback(null, true);
-        } else{
-            callback(new Error('Error de CORS'));
+        if (!origin || whiteList.includes(origin)) {
+            callback(null, true)
+        } else {
+            console.error('CORS bloqueado para origin:', origin)
+            callback(new Error('Error de CORS'))
         }
     }
 }
+
+// Aplicar middleware CORS
 server.use(cors(corsOptions));
 
 // Leer datos de formularios

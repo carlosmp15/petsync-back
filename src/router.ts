@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { authUser, createNewUser, deleteUser, getUserDataById, updateUserData } from "./handlers/users"
+import { authUser, createNewUser, deleteUser, forgotPassword, getUserDataById, resetPassword, updateUserData } from "./handlers/users"
 import { handleInputErrors } from "./middleware"
 import { body, param, query } from "express-validator"
 import { createNewPet, deletePet, getAllPetsByUserId, getAllPetsNameByUserId, getPetDataById, updatePetData } from "./handlers/pets"
@@ -645,6 +645,79 @@ router.post('/user',
 
 /**
  * @swagger
+ * /forgot-password:
+ *   post:
+ *     summary: Solicita restablecimiento de contraseña
+ *     description: Envía un correo electrónico con un token para restablecer la contraseña si el correo está registrado.
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: usuario@example.com
+ *     responses:
+ *       200:
+ *         description: Correo enviado correctamente
+ *       400:
+ *         description: Error de validación o correo no registrado
+ */
+router.post(
+  '/forgot-password',
+  body('email').isEmail().withMessage('Correo inválido'),
+  handleInputErrors,
+  forgotPassword
+)
+
+/**
+ * @swagger
+ * /reset-password:
+ *   post:
+ *     summary: Restablece la contraseña
+ *     description: Permite cambiar la contraseña usando un token recibido por correo.
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - token
+ *               - newPassword
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 example: eyJhbGciOiJIUzI1NiIsInR5cCI...
+ *               newPassword:
+ *                 type: string
+ *                 example: nuevaClaveSegura123
+ *     responses:
+ *       200:
+ *         description: Contraseña actualizada correctamente
+ *       400:
+ *         description: Token inválido, expirado o datos faltantes
+ */
+router.post(
+  '/reset-password',
+  body('token').notEmpty().withMessage('El token es obligatorio'),
+  body('newPassword')
+    .notEmpty().withMessage('La nueva contraseña es obligatoria'),
+  handleInputErrors,
+  resetPassword
+)
+
+/**
+ * @swagger
  * /api/v1/user/auth:
  *   post:
  *     summary: Authenticate a user
@@ -945,6 +1018,8 @@ router.post('/daily_activity',
         .isInt({ gt: 0 }).withMessage('El id de mascota debe ser un número entero positivo'),
     body('type')
         .notEmpty().withMessage('El tipo de actividad diaria es obligatoria'),
+    body('notes')
+        .notEmpty().withMessage('Las notas de actividad diaria es obligatoria'),
     body('duration')
         .notEmpty().withMessage('La duración de la actividad diaria es obligatoria')
         .isInt({ gt: 0 }).withMessage('La duración debe ser un número entero'),
@@ -1094,7 +1169,7 @@ router.put('/user/:id',
  *         description: Internal Server Error
  */
 router.put('/pet/:id',
-    body('user_id').notEmpty().withMessage('El ID de usuario es obligatorio'),
+    param('id').notEmpty().withMessage('El ID de mascota es obligatorio'),
     body('name').notEmpty().withMessage('El nombre es obligatorio'),
     body('breed').notEmpty().withMessage('La raza es obligatoria'),
     body('gender').notEmpty().withMessage('El género es obligatorio'),
@@ -1129,10 +1204,6 @@ router.put('/pet/:id',
  *           schema:
  *             type: object
  *             properties:
- *               pet_id:
- *                 type: integer
- *                 description: The ID of the pet to which the medical history belongs
- *                 example: 1
  *               type:
  *                 type: string
  *                 description: The type of the medical history record (e.g., vaccination, checkup)
@@ -1161,8 +1232,8 @@ router.put('/pet/:id',
  *         description: Internal Server Error - Something went wrong on the server
  */
 router.put('/medical_history/:id',
-    body('pet_id')
-        .notEmpty().withMessage('El id de mascota es obligatorio')
+    param('id')
+        .notEmpty().withMessage('El id del historial médico es obligatorio')
         .isInt({ gt: 0 }).withMessage('El id de mascota debe ser un número entero positivo'),
     body('type')
         .notEmpty().withMessage('El tipo de historial médico es obligatorio'),
@@ -1234,7 +1305,7 @@ router.put('/medical_history/:id',
  *         description: Internal Server Error
  */
 router.put('/feeding/:id',
-    body('pet_id')
+    param('id')
         .notEmpty().withMessage('El id de mascota es obligatorio')
         .isInt({ gt: 0 }).withMessage('El id de mascota debe ser un número entero positivo'),
     body('type')
@@ -1309,9 +1380,9 @@ router.put('/feeding/:id',
  *         description: Internal Server Error
  */
 router.put('/daily_activity/:id', 
-    body('pet_id')
-        .notEmpty().withMessage('El id de mascota es obligatorio')
-        .isInt({ gt: 0 }).withMessage('El id de mascota debe ser un número entero positivo'),
+    param('id')
+        .notEmpty().withMessage('El id de actividad diaria es obligatorio')
+        .isInt({ gt: 0 }).withMessage('El id de actividad diaria debe ser un número entero positivo'),
     body('type')
         .notEmpty().withMessage('El tipo de actividad diaria es obligatoria'),
     body('duration')

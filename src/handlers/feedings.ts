@@ -148,7 +148,7 @@ export const deleteFeeding = async (req: Request, res: Response): Promise<void> 
         })
     }
 
-    await feeding.destroy()
+    await feeding?.destroy()
     res.json({data: 'Historial alimentario eliminado'})  
 }
 

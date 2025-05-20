@@ -647,10 +647,10 @@ router.post('/user',
  * @swagger
  * /forgot-password:
  *   post:
- *     summary: Solicita restablecimiento de contraseña
- *     description: Envía un correo electrónico con un token para restablecer la contraseña si el correo está registrado.
+ *     summary: Request password reset
+ *     description: Sends an email with a token to reset the password if the email is registered.
  *     tags:
- *       - Auth
+ *       - User
  *     requestBody:
  *       required: true
  *       content:
@@ -663,12 +663,12 @@ router.post('/user',
  *               email:
  *                 type: string
  *                 format: email
- *                 example: usuario@example.com
+ *                 example: user@example.com
  *     responses:
  *       200:
- *         description: Correo enviado correctamente
+ *         description: Email sent successfully
  *       400:
- *         description: Error de validación o correo no registrado
+ *         description: Validation error or email not registered
  */
 router.post(
   '/forgot-password',
@@ -681,10 +681,10 @@ router.post(
  * @swagger
  * /reset-password:
  *   post:
- *     summary: Restablece la contraseña
- *     description: Permite cambiar la contraseña usando un token recibido por correo.
+ *     summary: Reset password
+ *     description: Allows changing the password using a token received via email.
  *     tags:
- *       - Auth
+ *       - User
  *     requestBody:
  *       required: true
  *       content:
@@ -700,12 +700,12 @@ router.post(
  *                 example: eyJhbGciOiJIUzI1NiIsInR5cCI...
  *               newPassword:
  *                 type: string
- *                 example: nuevaClaveSegura123
+ *                 example: newSecurePassword123
  *     responses:
  *       200:
- *         description: Contraseña actualizada correctamente
+ *         description: Password successfully updated
  *       400:
- *         description: Token inválido, expirado o datos faltantes
+ *         description: Invalid or expired token, or missing data
  */
 router.post(
   '/reset-password',

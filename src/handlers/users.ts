@@ -17,7 +17,7 @@ export const getUserDataById = async (req: Request, res: Response): Promise<void
                 error: 'Usuario no encontrado'
             })
         }
-        const userData = user.toJSON()
+        const userData = user?.toJSON()
         delete userData.password // no devolver la contraseña
         delete userData.createdAt
         delete userData.updatedAt
@@ -144,30 +144,31 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
         })
     }
 
-    await product.destroy()
+    await product?.destroy()
     res.json({data: 'Usuario eliminado'})  
 }
 
 // Funcion que envia un correo de recuperacion de contraseña	
-export const forgotPassword = async (req: Request, res: Response) :  Promise<void> => {
+export const forgotPassword = async (req: Request, res: Response): Promise<void> => {
   const { email } = req.body
-  const user = await User.findOne({ where: { email } })
-
-  if (!user) {
-    res.status(404).json({ message: 'Correo no registrado' })
-  }
-
-  const token = generateResetToken(user.id)
-  const resetUrl = `http://localhost:5173/account/change-password?token=${token}`
 
   try {
-    await sendResetEmail(email, resetUrl)
-    res.json({ message: 'Correo de recuperación enviado' })
+    const user = await User.findOne({ where: { email } })
+
+    if (user) {
+      const token = generateResetToken(user.id)
+      const resetUrl = `http://localhost:5173/account/change-password?token=${token}`
+      await sendResetEmail(email, resetUrl)
+    }
+
+    // Siempre responder con éxito, aunque el correo no exista
+    res.json({ message: 'Si el correo está registrado, se ha enviado un enlace de recuperación.' })
   } catch (err) {
     console.error(err)
-    res.status(500).json({ message: 'Error enviando el correo' })
+    res.status(500).json({ message: 'Error procesando la solicitud.' })
   }
 }
+
 
 // Funcion que restablece la contraseña
 export const resetPassword = async (req: Request, res: Response) : Promise<void> => {
@@ -182,8 +183,8 @@ export const resetPassword = async (req: Request, res: Response) : Promise<void>
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10)
-    user.password = hashedPassword
-    await user.save()
+    user!.password = hashedPassword
+    await user?.save()
 
     res.json({ message: 'Contraseña actualizada correctamente' })
   } catch (err) {

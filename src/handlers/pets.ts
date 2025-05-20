@@ -63,7 +63,7 @@ export const getPetDataById = async (req: Request, res: Response): Promise<void>
                 error: 'Mascota no encontrada'
             })
         }
-        const petData = pet.toJSON()
+        const petData = pet?.toJSON()
         delete petData.createdAt
         delete petData.updatedAt
 

@@ -148,7 +148,7 @@ export const deleteMedicalHistory = async (req: Request, res: Response): Promise
             })
         }
 
-        await medicalHistory.destroy()
+        await medicalHistory?.destroy()
         res.json({data: 'Historial médico eliminado'}) 
     } catch (error) {
         res.status(500).json({ error: 'Error interno del servidor' })

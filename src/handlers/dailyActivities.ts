@@ -151,7 +151,7 @@ export const deleteDailyActivity = async (req: Request, res: Response): Promise<
             })
         }
 
-        await activity.destroy()
+        await activity?.destroy()
         res.json({data: 'Actividad diaria eliminado'})     
     } catch (error) {
         res.status(500).json({ error: 'Error interno del servidor' })

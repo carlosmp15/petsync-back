@@ -157,7 +157,7 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
 
     if (user) {
       const token = generateResetToken(user.id)
-      const resetUrl = `http://localhost:5173/account/change-password?token=${token}`
+      const resetUrl = `${process.env.FRONTEND_URL}/account/change-password?token=${token}`;
       await sendResetEmail(email, resetUrl)
     }
 

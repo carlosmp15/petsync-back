@@ -91,7 +91,7 @@ export const createNewPet = async (req: Request, res: Response): Promise<void> =
             message: "Mascota creada exitosamente"
         })          
     } catch (error) {
-        res.status(500).json({ error: 'Error interno del servidor' })
+        res.status(500).json({ error: error })
         return
     }
 }
